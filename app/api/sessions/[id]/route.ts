@@ -2,7 +2,7 @@ import {ai,body,db,owner,sessionFor,saveSession,str,reply,fail,AppError,objectSc
 import {sampleFeedback} from '@/lib/samples';
 import type {Feedback,Session,Attempt} from '@/lib/types';
 type Context={params:Promise<{id:string}>};
-const feedbackSchema=objectSchema({intent:textSchema,interpretation:textSchema,evidence:textSchema,keep:textSchema,practice:textSchema,references:{type:'array',items:objectSchema({direction:textSchema,answer:textSchema,tradeoff:textSchema})}});
+const feedbackSchema=objectSchema({intent:textSchema,interpretation:textSchema,evidence:textSchema,keep:textSchema,practice:textSchema,references:{type:'array',minItems:3,maxItems:3,items:objectSchema({direction:textSchema,answer:textSchema,tradeoff:textSchema})}});
 const history=(s:Session)=>s.turns.flatMap(t=>[{speaker:'对方',text:t.opponent},...(t.selectedId?[{speaker:'用户',text:t.attempts.find(a=>a.id===t.selectedId)?.text||''}]:[])]);
 async function feedback(s:Session,a:Attempt){if(s.scene.mode==='sample')return sampleFeedback(s.scene);return ai<Feedback>(coachingRules,{scene:s.scene,goal:s.goal,history:history(s),currentOpponent:s.turns.at(-1)?.opponent,actualAnswer:a.text},feedbackSchema);}
 export async function GET(_req:Request,ctx:Context){try{return reply(await sessionFor((await ctx.params).id,await owner()));}catch(e){return fail(e);}}
