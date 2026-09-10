@@ -1,6 +1,6 @@
 export type Direction = 'express' | 'conflict' | 'affection';
 export type Reference = {direction:string; answer:string; tradeoff:string};
-export type Feedback = {intent:string; interpretation:string; evidence:string; keep:string; practice:string; references:Reference[]};
+export type Feedback = {answerQuote?:string; intent:string; interpretation:string; evidence:string; keep:string; practice:string; references:Reference[]};
 export type Scene = {id:string; direction:Direction; title:string; relationship:string; context:string; opening:string; goal:string; skill:string; challenge:string; mode:'live'|'sample'; sampleIndex?:number};
 export type Attempt = {id:string; text:string; audioId?:string; transcript?:string; mode:'text'|'voice'; assisted:boolean; createdAt:string; feedback?:Feedback; feedbackError?:string};
 export type Turn = {id:string; opponent:string; attempts:Attempt[]; selectedId?:string};

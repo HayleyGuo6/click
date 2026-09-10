@@ -9,8 +9,6 @@ export type ModelEnvironment = {
   DEEPSEEK_MODEL?: string;
   OPENAI_API_KEY?: string;
   OPENAI_MODEL?: string;
-  TRANSCRIPTION_PROVIDER?: string;
-  OPENAI_TRANSCRIBE_MODEL?: string;
 };
 
 export function modelConfig(env: ModelEnvironment) {
@@ -27,10 +25,6 @@ export function modelConfig(env: ModelEnvironment) {
   };
   throw new AppError('模型服务配置有误，请检查后再试。', 503);
 }
-
-// A text-model key never implicitly enables a separate audio service.
-export const transcriptionEnabled = (env: ModelEnvironment) =>
-  env.TRANSCRIPTION_PROVIDER === 'openai' && Boolean(env.OPENAI_API_KEY?.trim());
 
 type Schema = Record<string, unknown>;
 function matchesSchema(value: unknown, schema: Schema): boolean {

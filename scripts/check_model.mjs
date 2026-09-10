@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {modelConfig, transcriptionEnabled, runModel} from '../lib/model.ts';
+import {modelConfig, runModel} from '../lib/model.ts';
 
 const env = {DEEPSEEK_API_KEY: 'test-deepseek-only', OPENAI_API_KEY: 'test-openai-only'};
 const schema = {type: 'object', properties: {answer: {type: 'string'}}, required: ['answer'], additionalProperties: false};
@@ -46,11 +46,4 @@ test('Malformed, incomplete and wrong-shaped model data is never accepted as fee
   }
   const references = {type: 'object', properties: {references: {type: 'array', minItems: 3, maxItems: 3, items: {type: 'string'}}}, required: ['references']};
   await assert.rejects(runModel(env, '', {}, references, async () => output({references: ['one']})), /内容不完整/);
-});
-
-test('Text-model access never implicitly turns on audio transcription', () => {
-  assert.equal(transcriptionEnabled(env), false);
-  assert.equal(transcriptionEnabled({...env, TRANSCRIPTION_PROVIDER: 'none'}), false);
-  assert.equal(transcriptionEnabled({DEEPSEEK_API_KEY: env.DEEPSEEK_API_KEY, TRANSCRIPTION_PROVIDER: 'openai'}), false);
-  assert.equal(transcriptionEnabled({...env, TRANSCRIPTION_PROVIDER: 'openai'}), true);
 });

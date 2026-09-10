@@ -1,5 +1,5 @@
 """Local integration checks. Creates and deletes only its own test sessions."""
-import json,urllib.request,urllib.error,http.cookiejar,uuid,io,wave
+import json,urllib.request,urllib.error,http.cookiejar,uuid
 BASE='http://localhost:3000'
 jar=http.cookiejar.CookieJar(); client=urllib.request.build_opener(urllib.request.HTTPCookieProcessor(jar))
 created=[]
@@ -35,16 +35,10 @@ try:
         s=request(path,{'action':'finish','version':s['version'],'note':'接口检查记录'});assert s['status']=='finished'
         s2=request('/api/sessions',{'sceneId':scene['id'],'goal':s['goal'],'parentSessionId':s['id']});created.append(s2['id'])
         assert s2['id']!=s['id'] and s2['parentSessionId']==s['id'] and request(path)['status']=='finished'
-    raw=io.BytesIO()
-    with wave.open(raw,'wb') as w:w.setnchannels(1);w.setsampwidth(2);w.setframerate(8000);w.writeframes(b'\0\0'*8000)
-    audio=raw.getvalue();boundary='click-'+uuid.uuid4().hex
-    payload=(f'--{boundary}\r\nContent-Disposition: form-data; name="audio"; filename="check.wav"\r\nContent-Type: audio/wav\r\n\r\n').encode()+audio+f'\r\n--{boundary}--\r\n'.encode()
-    req=urllib.request.Request(BASE+'/api/audio',data=payload,headers={'Content-Type':'multipart/form-data; boundary='+boundary})
-    with client.open(req) as r:a=json.load(r)
-    with client.open(BASE+'/api/audio/'+a['id']) as r:assert r.read()==audio
-    s=request('/api/sessions/'+created[-1]);s=request('/api/sessions/'+s['id'],{'action':'answer','version':s['version'],'text':'语音存储检查','audioId':a['id'],'attemptId':str(uuid.uuid4())})
-    assert s['turns'][0]['attempts'][0]['mode']=='voice'
-    print('PASS: three directions; no references before answer; references after submit; preserved retries; idempotency; conflict handling; branch retention; saved records; separate repeat sessions; audio byte integrity.')
+    error('/api/audio',{},410)
+    s=request('/api/sessions/'+created[-1]);error('/api/sessions/'+s['id'],{'action':'answer','version':s['version'],'text':'只支持文字','audioId':'legacy-recording','attemptId':str(uuid.uuid4())},400)
+    assert request('/api/sessions/'+s['id'])['turns'][0]['attempts']==[]
+    print('PASS: three directions; references only after submit; preserved retries; idempotency; conflicts; branches; saved records; separate repeat sessions; voice uploads and submissions disabled.')
 finally:
     for ident in created:
         request('/api/sessions/'+ident,method='DELETE')
