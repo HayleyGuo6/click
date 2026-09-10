@@ -1,0 +1,9 @@
+export type Direction = 'express' | 'conflict' | 'affection';
+export type Reference = {direction:string; answer:string; tradeoff:string};
+export type Feedback = {intent:string; interpretation:string; evidence:string; keep:string; practice:string; references:Reference[]};
+export type Scene = {id:string; direction:Direction; title:string; relationship:string; context:string; opening:string; goal:string; skill:string; challenge:string; mode:'live'|'sample'; sampleIndex?:number};
+export type Attempt = {id:string; text:string; audioId?:string; transcript?:string; mode:'text'|'voice'; assisted:boolean; createdAt:string; feedback?:Feedback; feedbackError?:string};
+export type Turn = {id:string; opponent:string; attempts:Attempt[]; selectedId?:string};
+export type Session = {id:string; scene:Scene; goal:string; status:'active'|'finished'; createdAt:string; updatedAt:string; version:number; turns:Turn[]; branches:{createdAt:string; turns:Turn[]}[]; parentSessionId?:string; goalHistory?:{goal:string;changedAt:string}[]; summary?:string; selfNote?:string};
+export type SessionSummary = {id:string; title:string; direction:Direction; sceneId:string; status:string; updatedAt:string; mode:string; parentSessionId?:string; turns:number};
+export const DIRECTIONS = {express:{label:'把话说清楚',short:'表达',description:'本意，准确抵达'},conflict:{label:'处理分歧',short:'分歧',description:'有立场，也有余地'},affection:{label:'表达好感',short:'好感',description:'自然地，靠近一点'}};
