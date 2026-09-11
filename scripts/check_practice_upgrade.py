@@ -23,6 +23,8 @@ def answer(s, text):
     a=s['turns'][-1]['attempts'][-1]
     assert a.get('feedback'),a.get('feedbackError')
     assert a['feedback']['answerQuote'] in text
+    assert len(a['feedback']['interpretation'].strip()) >= 8
+    assert a['feedback']['evidence'].strip()
     assert len(a['feedback']['references'])==3
     return s
 try:
